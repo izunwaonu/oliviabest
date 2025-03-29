@@ -236,6 +236,28 @@ export default function LandingPage() {
           </a>
         </motion.div>
 
+        <motion.div variants={itemVariants}>
+          <a href="/expense-dashboard" className="group block h-full">
+            <div
+              className={`${styles.card} backdrop-blur-lg rounded-2xl overflow-hidden border shadow-xl h-full transition-all duration-300 hover:shadow-rose-500/20 hover:border-rose-500/30 ${styles.cardHover}`}
+            >
+              <div className="p-6 md:p-8 flex flex-col h-full">
+                <div className="bg-gradient-to-br from-rose-500 to-rose-600 w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-rose-500/20">
+                  <BarChart3 className="text-white h-7 w-7" />
+                </div>
+                <h3 className={`text-2xl font-bold ${styles.text} mb-3`}>Track Expenses</h3>
+                <p className={`${styles.subtext} mb-6 flex-grow`}>
+                Monitor purchases, record salaries, and manage payments effortlessly with insightful reports.
+                </p>
+                <div className="flex items-center text-rose-500 font-medium group-hover:text-rose-600 transition-colors">
+                  <span>Explore</span>
+                  <ChevronRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </div>
+          </a>
+        </motion.div>
+
         {/* Debtor's Analysis */}
         <motion.div variants={itemVariants}>
           <a href="/dashboard" className="group block h-full">
