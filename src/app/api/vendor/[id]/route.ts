@@ -28,14 +28,19 @@
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 
 // ✅ PUT - Update vendor
-export async function PUT(req: Request, { params }: { params: Record<string, string> }) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }  // ✅ Treating params as a Promise
+) {
   try {
+    const { id } = await params; // ✅ Awaiting params properly
     const { name, contact, address } = await req.json();
-    
+
     const updatedVendor = await prisma.vendor.update({
-      where: { id: params.id }, // ✅ Fixed: Ensures correct `params` structure
+      where: { id },
       data: { name, contact, address },
     });
 
@@ -47,11 +52,14 @@ export async function PUT(req: Request, { params }: { params: Record<string, str
 }
 
 // ✅ DELETE - Remove vendor
-export async function DELETE(req: Request, { params }: { params: Record<string, string> }) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }  // ✅ Treating params as a Promise
+) {
   try {
-    await prisma.vendor.delete({
-      where: { id: params.id }, // ✅ Fixed: Ensures correct `params` structure
-    });
+    const { id } = await params; // ✅ Awaiting params properly
+
+    await prisma.vendor.delete({ where: { id } });
 
     return NextResponse.json({ message: "Vendor deleted" });
   } catch (error) {

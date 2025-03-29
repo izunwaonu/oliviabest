@@ -39,11 +39,15 @@
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 
-// ✅ Update a category
-export async function PUT(req: Request, { params }: { params: Record<string, string> }) {
+// Update a category
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }  // ✅ Treating params as a Promise
+) {
   try {
-    const { id } = params; // ✅ Fixed: Ensures `params` is properly typed
+    const { id } = await params; // ✅ Awaiting params properly
     const { name } = await req.json();
 
     if (!name) {
@@ -62,10 +66,13 @@ export async function PUT(req: Request, { params }: { params: Record<string, str
   }
 }
 
-// ✅ Delete a category
-export async function DELETE(req: Request, { params }: { params: Record<string, string> }) {
+// Delete a category
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }  // ✅ Treating params as a Promise
+) {
   try {
-    const { id } = params; // ✅ Fixed: Ensures `params` is properly typed
+    const { id } = await params; // ✅ Awaiting params properly
 
     await prisma.expenseCategory.delete({ where: { id } });
 
