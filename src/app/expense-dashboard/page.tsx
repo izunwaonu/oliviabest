@@ -402,7 +402,7 @@ export default function ExpenseDashboard() {
           className="mb-6"
         >
           <div className="flex flex-wrap gap-2">
-            <Link href="/expenses">
+            <Link href="/expense">
               <Button className={`${styles.buttonAccent} transition-colors duration-300`}>
                 <Plus size={16} className="mr-1" /> New Expense
               </Button>
@@ -417,7 +417,7 @@ export default function ExpenseDashboard() {
                 <Building size={16} className="mr-1" /> Manage Vendors
               </Button>
             </Link>
-            <Link href="/expenses">
+            <Link href="/expense">
               <Button className={`${styles.button} transition-colors duration-300`}>
                 <Receipt size={16} className="mr-1" /> View All Expenses
               </Button>
