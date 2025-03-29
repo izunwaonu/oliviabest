@@ -1,0 +1,142 @@
+// This is your Prisma schema file
+// Learn more at: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql" // MySQL database (compatible with cPanel)
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+  role     Role   @default(STAFF)
+
+  // ✅ Relation: A user can add many debtors
+  debtors Debtor[]
+
+  // ✅ Relation: A user can record many payments
+  payments Payment[]
+
+  // ✅ Relation: A user can have many transactions
+  transactions Transaction[]
+
+  // ✅ Relation: A user can record many expenses
+  expenses Expense[]
+
+  createdAt DateTime @default(now())
+}
+
+model Debtor {
+  id          String   @id @default(uuid())
+  name        String
+  invoiceNo   String   @unique
+  phoneNumber String
+  amountOwed  Float
+  balance     Float    @default(0)
+  dueDate     DateTime
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  payments     Payment[]
+  transactions Transaction[]
+
+  createdAt DateTime @default(now())
+}
+
+model Transaction {
+  id       String @id @default(uuid())
+  debtorId String
+  debtor   Debtor @relation(fields: [debtorId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  type         TransactionType // "DEBT" or "PAYMENT"
+  amount       Float
+  balanceAfter Float
+  note         String?
+
+  paymentMethod String? 
+  overpayment   Float? 
+
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id String @id @default(uuid())
+
+  debtorId String
+  debtor   Debtor @relation(fields: [debtorId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  amount Float
+  paidAt DateTime @default(now())
+}
+
+// ✅ New Expense Tracking Models Below
+
+model Expense {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id]) // ✅ Tracks who added the expense
+  categoryId  String
+  category    ExpenseCategory @relation(fields: [categoryId], references: [id])
+  vendorId    String? 
+  vendor      Vendor?  @relation(fields: [vendorId], references: [id]) // ✅ Nullable if no vendor is associated
+  amount      Float
+  paymentMethod String // e.g., "Cash", "Bank Transfer", "Card"
+  date        DateTime @default(now())
+  description String?
+
+  payments PaymentRecord[] // ✅ Tracks installment payments
+
+  createdAt DateTime @default(now())
+}
+
+model ExpenseCategory {
+  id   String @id @default(uuid())
+  name String @unique
+
+  expenses Expense[] // ✅ One category can have many expenses
+}
+
+model Vendor {
+  id      String @id @default(uuid())
+  name    String
+  contact String?
+  address String?
+
+  expenses Expense[] // ✅ One vendor can have many expenses
+}
+
+model PaymentRecord {
+  id          String @id @default(uuid())
+  expenseId   String
+  expense     Expense @relation(fields: [expenseId], references: [id]) // ✅ Tracks which expense this payment is for
+  amountPaid  Float
+  paymentDate DateTime @default(now())
+  remainingBalance Float?
+
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  STAFF
+  NO_ROLE
+}
+
+enum TransactionType {
+  DEBT
+  PAYMENT
+}
