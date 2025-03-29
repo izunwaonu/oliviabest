@@ -29,7 +29,8 @@ model User {
   // ✅ Relation: A user can record many expenses
   expenses Expense[]
 
-  createdAt DateTime @default(now())
+  createdAt   DateTime      @default(now())
+  ActivityLog ActivityLog[]
 }
 
 model Debtor {
@@ -63,8 +64,8 @@ model Transaction {
   balanceAfter Float
   note         String?
 
-  paymentMethod String? 
-  overpayment   Float? 
+  paymentMethod String?
+  overpayment   Float?
 
   createdAt DateTime @default(now())
 }
@@ -85,21 +86,24 @@ model Payment {
 // ✅ New Expense Tracking Models Below
 
 model Expense {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id]) // ✅ Tracks who added the expense
-  categoryId  String
-  category    ExpenseCategory @relation(fields: [categoryId], references: [id])
-  vendorId    String? 
-  vendor      Vendor?  @relation(fields: [vendorId], references: [id]) // ✅ Nullable if no vendor is associated
-  amount      Float
+  id            String          @id @default(uuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id]) // ✅ Tracks who added the expense
+  categoryId    String
+  category      ExpenseCategory @relation(fields: [categoryId], references: [id])
+  vendorId      String?
+  vendor        Vendor?         @relation(fields: [vendorId], references: [id]) // ✅ Nullable if no vendor is associated
+  amount        Float
   paymentMethod String // e.g., "Cash", "Bank Transfer", "Card"
-  date        DateTime @default(now())
-  description String?
+  date          DateTime        @default(now())
+  description   String?
+  activities    ActivityLog[] // ✅ Tracks all changes to this expense
 
   payments PaymentRecord[] // ✅ Tracks installment payments
 
   createdAt DateTime @default(now())
+
+  @@index([date]) // 🔍 Index for filtering by dat
 }
 
 model ExpenseCategory {
@@ -110,7 +114,7 @@ model ExpenseCategory {
 }
 
 model Vendor {
-  id      String @id @default(uuid())
+  id      String  @id @default(uuid())
   name    String
   contact String?
   address String?
@@ -118,12 +122,25 @@ model Vendor {
   expenses Expense[] // ✅ One vendor can have many expenses
 }
 
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String // The user who performed the action
+  user      User     @relation(fields: [userId], references: [id])
+  expenseId String?
+  expense   Expense? @relation(fields: [expenseId], references: [id], onDelete: Cascade) // ✅ Link to expense
+  action    String // "Created", "Updated", "Deleted"
+  details   String // Description of the change
+  timestamp DateTime @default(now())
+
+  @@index([timestamp]) // 🔍 Index for filtering logs by date
+}
+
 model PaymentRecord {
-  id          String @id @default(uuid())
-  expenseId   String
-  expense     Expense @relation(fields: [expenseId], references: [id]) // ✅ Tracks which expense this payment is for
-  amountPaid  Float
-  paymentDate DateTime @default(now())
+  id               String   @id @default(uuid())
+  expenseId        String
+  expense          Expense  @relation(fields: [expenseId], references: [id]) // ✅ Tracks which expense this payment is for
+  amountPaid       Float
+  paymentDate      DateTime @default(now())
   remainingBalance Float?
 
   createdAt DateTime @default(now())

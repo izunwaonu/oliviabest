@@ -25,6 +25,7 @@
 //   );
 // }
 
+import { Toaster } from "react-hot-toast";
 import ClientLayout from "./client-layout";
 
 export const metadata = {
@@ -47,6 +48,7 @@ export default function RootLayout({
           <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
       <body>
+      <Toaster position="top-right" />
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
